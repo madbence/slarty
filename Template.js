@@ -13,7 +13,15 @@ function Template(file)
 				var decorator=arguments[3];
 				if(decorator === undefined)
 				{
-					return obj[name] === undefined ? '{'+name+'}' : obj[name];
+					if(obj[name] === undefined)
+					{
+						return '{'+name+'}';
+					}
+					if(typeof obj[name] === 'function')
+					{
+						return obj[name]();
+					}
+					return obj[name];
 				}
 				switch(decorator)
 				{
