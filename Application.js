@@ -1,10 +1,10 @@
 var Router=require('./Router.js').Router;
 var Request=require('./Request.js').Request;
 var Response=require('./Response.js').Response;
-var db=require('./Db.js');
 
 function Application()
 {
+	require('./Db.js').API.init();
 	var router=new Router();
 	var before=[];
 	var handle={

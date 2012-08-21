@@ -2,17 +2,20 @@ var mongodb=require('mongodb'),
 	mongoserver=new mongodb.Server('localhost', mongodb.Connection.DEFAULT_PORT),
 	db_connector=new mongodb.Db('fw', mongoserver),
 	db=null;
-db_connector.open(function(err, database)
-{
-	if(err)
-	{
-		return console.log(err);
-	}
-	console.log('Connected to db.');
-	db=database;
-});
 
 var API={
+	'init': function()
+	{
+		db_connector.open(function(err, database)
+		{
+			if(err)
+			{
+				return console.log(err);
+			}
+			console.log('Connected to db.');
+			db=database;
+		});
+	}
 	'get': function(coll, query, options, fn)
 	{
 		if(typeof options === 'function')
