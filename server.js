@@ -7,12 +7,6 @@ var http=require('http');
 
 app.useSessions();
 
-app.get('/hello/:name', function(req, res, repo)
-{
-	var session=repo['session'];
-	session.set('name', req.getVar('name'));
-	res.end('HAI');
-});
 app.get('/viewSession', function(req, res, repo)
 {
 	res.end(JSON.stringify(repo['session'].getAll(), null, 4));
