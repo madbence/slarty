@@ -87,7 +87,7 @@ app.get('/addBacon', function(req, res, repo)
 	http.get({
 		'host': 'baconipsum.com',
 		'port': 80,
-		'path': '/api/?type=all-meat&paras=5&start-with-lorem=1'
+		'path': '/api/?type=all-meat&paras='+(Math.ceil(Math.random()*5))+'&start-with-lorem=1'
 	}, function(ress)
 	{
 		var data='';
