@@ -203,6 +203,7 @@ app.get('/', function(req, res, repo)
 				'renderInfo': template.get('renderinfo.html').render({
 					'time': (process.hrtime(start)[1]/1000000).toFixed(3),
 					'uptime': Math.round(process.uptime()),
+					'sysuptime': Math.round(require('os').uptime()),
 					'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
 					'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
 					'version': process.version,
