@@ -19,7 +19,12 @@ app.get('/setSession/:name/:value', function(req, res, repo)
 app.get('/listActiveSessions', function(req, res, repo)
 {
 	var s=require('./Sessions.js').getAll();
-	res.end(JSON.stringify(s));
+	var s2={}
+	for(var i in s)
+	{
+		s2[i]=s[i].getAll();
+	}
+	res.end(JSON.stringify(s2, null, 4));
 });
 app.get('/register', function(req, res, repo)
 {
