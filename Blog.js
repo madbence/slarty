@@ -13,6 +13,7 @@ var blog={
 			{
 				return fn({'message': 'Post not found!'},null);
 			}
+			fn(err, item);
 		})
 	},
 	'getPosts': function(page, fn)
