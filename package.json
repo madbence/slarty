@@ -1,0 +1,15 @@
+{
+	"name": "slarty",
+	"version": "0.1.0",
+	"author": "Bence Danyi <madbence@gmail.com>",
+	"description": "Node.js+MongoDB based blog engine.",
+	"main": "./Application.js",
+	"keywords": ["http","server","blog","mongo"],
+	"dependencies":{
+		"mongodb": "1.1.x"
+	},
+	"license": "MIT",
+	"engine":{
+		"node": ">=0.8.7"
+	}
+}
