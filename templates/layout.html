@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sample</title>
+		<meta charset="utf-8" />
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:800&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+		<style>
+			*{margin:0;padding:0;}
+			html{
+				font-size: 12px;
+				font-family: 'Droid Sans','lucida grande',tahoma,verdana,arial,sans-serif;
+				color: #333;
+			}
+			h1,h2,h3,h4,h5,h6{
+				font-family: 'Open Sans', sans-serif;
+			}
+			h1{font-size:3em;}
+			h2{font-size:2em;}
+			#title{
+				position: absolute;
+				right: 630px;
+			}
+			#loginForm{
+				position: absolute;
+				right: 0;
+			}
+				#loginForm input {
+					border: none;
+					border-bottom: 2px solid #ddd;
+					width: 75px;
+					padding: 3px;
+					margin: 5px;
+					font-size: 0.8em;
+				}
+				#loginForm input[type=submit]{
+					border: 1px solid #ddd;
+					color: #333;
+				}
+				#loginButton{
+					font-weight: bold;
+					font-size: 1.2em;
+					color: #333;
+				}
+				#postForm input[type=text]{
+					margin-top: 20px;
+					margin-bottom: 10px;
+					font-family: 'Open Sans', sans-serif;
+					font-size:2em;
+					color: #333;
+					border: none;
+					border-bottom: 2px solid #ddd;
+					background-color: #f3f3f3;
+					padding: 5px;
+				}
+				#postForm input[type=submit]{
+					margin-top: 20px;
+					margin-bottom: 10px;
+					font-family: 'Open Sans', sans-serif;
+					color: #333;
+					padding: 5px;
+				}
+				#postForm textarea{
+					margin-top: 20px;
+					margin-bottom: 10px;
+					width: 100%;
+					height: 300px;
+					font-size: 12px;
+					font-family: 'Droid Sans','lucida grande',tahoma,verdana,arial,sans-serif;
+					color: #333;
+					border: none;
+					background-color: #f3f3f3;
+					padding: 5px;
+				}
+			#wrapper{
+				position: relative;
+				width: 600px;
+				margin: 0 auto;
+				padding: 20px;
+				padding-bottom: 40px;
+			}
+			#renderinfo{
+				position: absolute;
+				bottom: 0px;
+			}
+			.post{
+				margin: 30px 0px;
+				padding: 10px 20px;
+			}
+			.post footer{
+				margin-top: 10px;
+				font-size: 0.9em;
+			}
+			.post p{
+				margin-bottom: 5px;
+			}
+			.text{border-left: 5px solid #eee;}
+			.photo{border-left: 5px solid #FFDAA1;}
+			.photoset{border-left: 5px solid #FFDAA1;}
+			.quote{border-left: 5px solid #B8FFA1;}
+			.link{border-left: 5px solid #A1C7FF;}
+			.chat{border-left: 5px solid #BFA1FF;}
+			.audio{border-left: 5px solid #FFFFA1;}
+			.video{border-left: 5px solid #FFA1A1;}
+			#pagination{
+				text-align: center;
+				position: relative;
+			}
+				#pagination .prev{
+					display: block;
+					position: absolute;
+					left: 0;
+				}
+				#pagination .next{
+					display: block;
+					position: absolute;
+					right: 0;
+					top: 0;
+				}
+		</style>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div id="title"><h1>lennon's<h1></div>
+			<h1>Node.js based blog</h1>
+			<p>JavaScript is fun!</p>
+			{loginForm}
+			Welcome, {userName}!
+			{content}
+			{renderInfo}
+		</div>
+	</body>
+</html>

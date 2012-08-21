@@ -1,0 +1,8 @@
+<div id="loginForm">
+	<a id="loginButton" href="#" onclick="document.getElementById('loginFormContainer').style.display='block'; this.style.display='none'; return false;">Login!</a>
+	<form action="/login" method="post" id="loginFormContainer" style="display: none;">
+		<input type="text" name="username" placeholder="Username" />
+		<input type="password" name="password" placeholder="Password" />
+		<input type="submit" value="Login" />
+	</form>
+</div>
