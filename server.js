@@ -10,11 +10,6 @@ app.useSessions();
 app.get('/viewSession', function(req, res, repo)
 {
 	res.end(JSON.stringify(repo['session'].getAll(), null, 4));
-})
-app.get('/setSession/:name/:value', function(req, res, repo)
-{
-	repo['session'].set(req.getVar('name'), req.getVar('value'));
-	res.end('Setting session[\''+req.getVar('name')+'\'] to \''+req.getVar('value')+'\'.');
 });
 app.get('/listActiveSessions', function(req, res, repo)
 {
@@ -62,15 +57,6 @@ app.post('/register', function(req, res, repo)
 		})
 	})
 })
-app.get('/login', function(req, res, repo)
-{
-	if(repo['session'].get('isLoggedin'))
-	{
-		return res.redirect('/');
-	}
-	res.writeHead(200, {'Content-Type': 'text/html'});
-	res.end('<form method="post"><input name="username" /><input type="password" name="password" /><input type="submit" /></form>');
-});
 app.post('/login', function(req, res, repo)
 {
 	if(repo['session'].get('isLoggedin'))
