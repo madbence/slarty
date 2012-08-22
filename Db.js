@@ -15,7 +15,7 @@ var API={
 			console.log('Connected to db.');
 			db=database;
 		});
-	}
+	},
 	'get': function(coll, query, options, fn)
 	{
 		if(typeof options === 'function')
