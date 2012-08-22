@@ -1,7 +1,8 @@
 <div id="postForm">
 	<form method="post">
-		<input type="text" name="title" class="title" placeholder="Title" /><br />
-		<textarea name="content" placeholder="Write some text..."></textarea><br />
+		<input type="text" name="title" class="title" placeholder="Title" {if:edit}value="{title}"{/if:edit}/><br />
+		<textarea name="content" placeholder="Write some text...">{if:edit}{content}{/if:edit}</textarea><br />
+		{if:edit}<input type="hidden" name="id" value="{_id}" />{/if:edit}
 		<input type="submit" value="Save"/>
 	</form>
 </div>

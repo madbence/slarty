@@ -1,4 +1,6 @@
-{newPost}
+{if:isAdmin}
+	<a href="/newPost">Write something!</a>
+{/if:isAdmin}
 <div id="posts">
 	{posts}
 	{pagination}

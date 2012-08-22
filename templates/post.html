@@ -1,4 +1,10 @@
 <div class='post {type}'>
+	{if:isAdmin}
+		<div class="admin">
+			<a href="/deletePost/{_id}">Delete post</a>
+			<a href="/editPost/{_id}">Edit post</a>
+		</div>
+	{/if:isAdmin}
 	<h2><a href="/post/{_id}">{title}</a></h2>
 	<div class='content'>
 		{content}
