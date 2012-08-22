@@ -48,6 +48,37 @@ function Application()
 			options.method='POST';
 			router.addRoute(path, callback, options);
 		},
+		'serveFiles': function(basepath, path)
+		{
+			console.log(basepath+'/:path');
+			router.addRoute(basepath+'/:path', function(req, res, repo)
+			{
+				var fs=require('fs');
+				var file=path+'/'+req.getVar('path').replace('..', '.');
+				var ext=file.substr(file.lastIndexOf('.')+1);
+				fs.readFile(file, function(err, data)
+				{
+					if(err)
+					{
+						res.writeHead(404, {'Content-Type': 'text/plain'});
+						res.end('404 - Not found :( '+err.toString());
+						return;
+					}
+					 res.writeHead(200, {'Content-Type': {
+						'jpg': 'image',
+						'gif': 'image',
+						'png': 'image',
+						'txt': 'text',
+					}[ext]+'/'+ext});
+					res.end(data);
+				})
+			}, {'path': 'all', 'method': 'GET'});
+			var r=router.getRoutes();
+			for(var i in r)
+			{
+				console.log(r[i]['route'].getRaw(), r[i]['route'].getRegexp());
+			}
+		},
 		'listen': function(port)
 		{
 			server.listen(port);
@@ -60,7 +91,6 @@ function Application()
 				return Sessions(req, res);
 			}})
 		}
-
 	}
 	return that;
 }
