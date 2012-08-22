@@ -25,6 +25,10 @@ function Router()
 				}
 			}
 			return match;
+		},
+		'getRoutes': function()
+		{
+			return routes;
 		}
 	}
 	return that;
@@ -37,8 +41,12 @@ var filters={
 	},
 	'alpha': function()
 	{
-		return '([a-zA-Z])';
+		return '([a-zA-Z]*)';
 	},
+	'all': function()
+	{
+		return '(.*)'
+	}
 }
 
 var slugPrefix=':';
@@ -64,7 +72,7 @@ function Route(path, options)
 		{
 			throw new Error('Filter \''+options[name]+'\' not exists.');
 		}
-		return filters[options[name]];
+		return filters[options[name]]();
 	}
 
 	var that={
