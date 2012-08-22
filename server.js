@@ -4,6 +4,7 @@ var app=new lib.Application();
 var blog=require('./Blog.js').Blog;
 var template=require('./Template.js');
 var http=require('http');
+var Jobs=require('./Jobs.js');
 
 app.useSessions();
 
@@ -191,21 +192,36 @@ function renderPage(page, req, res, repo)
 	var start=process.hrtime();
 	var session=repo['session'];
 	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
-	blog.getPosts(page, function(err, data)
-	{
-		blog.getPaginationData(page, function(pagination)
+	Jobs.paralell({
+		'posts': function(job)
 		{
-			var content=getContentObject(start,repo);
-			content['content']=template.get('posts.html').render({
-				'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
-				'posts': template.get('post.html').render(data),
-				'pagination': template.get('pagination.html').render({
-					'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
-					'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
-					'current': 'Page '+pagination['current']+'/'+pagination['all']
-				})
+			blog.getPosts(page, function(err, data)
+			{
+				job.finish({
+					'error': err,
+					'data': data});
 			});
-			res.end(template.get('layout.html').render(content));
+		},
+		'pagination': function(job)
+		{
+			blog.getPaginationData(page, function(pagination)
+			{
+				job.finish(pagination);
+			});
+		}
+	}, function(results)
+	{
+		var pagination=results['pagination'];
+		var content=getContentObject(start,repo);
+		content['content']=template.get('posts.html').render({
+			'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
+			'posts': template.get('post.html').render(results['posts']['data']),
+			'pagination': template.get('pagination.html').render({
+				'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
+				'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
+				'current': 'Page '+pagination['current']+'/'+pagination['all']
+			})
 		});
-	});
+		res.end(template.get('layout.html').render(content));
+	})
 }
