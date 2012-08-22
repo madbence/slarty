@@ -117,29 +117,9 @@ app.get('/addPost', function(req, res, repo)
 	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
 	blog.getPosts(1, function(err, data)
 	{
-		var t=template.get('layout.html');
-		res.end(template.get('layout.html').render(
-		{
-			'content': template.get('postForm.html').render(),
-			'loginForm': function()
-			{
-				if(session.get('isLoggedin'))
-				{
-					return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
-				}
-				return template.get('loginForm.html').render();
-			}(),
-			'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-			'renderInfo': template.get('renderinfo.html').render({
-				'time': (process.hrtime(start)[1]/1000000).toFixed(3),
-				'uptime': Math.round(process.uptime()),
-				'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
-				'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
-				'version': process.version,
-				'platform': process.platform,
-				'arch': process.arch
-			})
-		}));
+		var content=getContentObject(start,repo);
+		content['content']=template.get('postForm.html').render();
+		res.end(template.get('layout.html').render(content));
 	})
 });
 app.post('/addPost', function(req, res, repo)
@@ -159,90 +139,11 @@ app.post('/addPost', function(req, res, repo)
 });
 app.get('/', function(req, res, repo)
 {
-	var start=process.hrtime();
-	var session=repo['session'];
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
-	blog.getPosts(1, function(err, data)
-	{
-		blog.getPaginationData(1, function(pagination)
-		{
-			res.end(template.get('layout.html').render(
-			{
-				'content': template.get('posts.html').render({
-					'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
-					'posts': template.get('post.html').render(data),
-					'pagination': template.get('pagination.html').render({
-						'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
-						'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
-						'current': 'Page '+pagination['current']+'/'+pagination['all']
-					})
-				}),
-				'loginForm': function()
-				{
-					if(session.get('isLoggedin'))
-					{
-						return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
-					}
-					return template.get('loginForm.html').render();
-				}(),
-				'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-				'renderInfo': template.get('renderinfo.html').render({
-					'time': (process.hrtime(start)[1]/1000000).toFixed(3),
-					'uptime': Math.round(process.uptime()),
-					'sysuptime': Math.round(require('os').uptime()),
-					'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
-					'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
-					'version': process.version,
-					'platform': process.platform,
-					'arch': process.arch
-				})
-			}));
-		});
-	});
+	renderPage(1, req, res, repo);
 });
 app.get('/page/:page', function(req, res, repo)
 {
-	var page=parseInt(req.getVar('page'))
-	var start=process.hrtime();
-	var session=repo['session'];
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
-	blog.getPosts(page, function(err, data)
-	{
-		blog.getPaginationData(page, function(pagination)
-		{
-			res.end(template.get('layout.html').render(
-			{
-				'content': template.get('posts.html').render({
-					'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
-					'posts': template.get('post.html').render(data),
-					'pagination': template.get('pagination.html').render({
-						'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
-						'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
-						'current': 'Page '+pagination['current']+'/'+pagination['all']
-					})
-				}),
-				'loginForm': function()
-				{
-					if(session.get('isLoggedin'))
-					{
-						return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
-					}
-					return template.get('loginForm.html').render();
-				}(),
-				'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-				'renderInfo': template.get('renderinfo.html').render({
-					'time': (process.hrtime(start)[1]/1000000).toFixed(3),
-					'uptime': Math.round(process.uptime()),
-					'sysuptime': Math.round(require('os').uptime()),
-					'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
-					'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
-					'version': process.version,
-					'platform': process.platform,
-					'arch': process.arch
-				})
-			}));
-		});
-	});
+	renderPage(parseInt(req.getVar('page')), req, res, repo);
 });
 app.get('/post/:id', function(req, res, repo)
 {
@@ -252,31 +153,59 @@ app.get('/post/:id', function(req, res, repo)
 	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
 	blog.getPost(id, function(err, data)
 	{
-		console.log(err,data);
-		res.end(template.get('layout.html').render(
-		{
-			'content': template.get('post.html').render(data),
-			'loginForm': function()
-			{
-				if(session.get('isLoggedin'))
-				{
-					return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
-				}
-				return template.get('loginForm.html').render();
-			},
-			'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-			'renderInfo': template.get('renderinfo.html').render({
-				'time': (process.hrtime(start)[1]/1000000).toFixed(3),
-				'uptime': Math.round(process.uptime()),
-				'sysuptime': Math.round(require('os').uptime()),
-				'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
-				'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
-				'version': process.version,
-				'platform': process.platform,
-				'arch': process.arch
-			})
-		}));
+		var content=getContentObject(start,repo);
+		content['content']=template.get('post.html').render(data);
+		res.end(template.get('layout.html').render(content));
 	});
 });
 
 app.listen(8080);
+
+function getContentObject(time,repo)
+{
+	var session=repo['session'];
+	return {
+		'loginForm': function()
+		{
+			if(session.get('isLoggedin'))
+			{
+				return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
+			}
+			return template.get('loginForm.html').render();
+		}(),
+		'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
+		'renderInfo': template.get('renderinfo.html').render({
+			'time': (process.hrtime(time)[1]/1000000).toFixed(3),
+			'uptime': Math.round(process.uptime()),
+			'sysuptime': Math.round(require('os').uptime()),
+			'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
+			'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
+			'version': process.version,
+			'platform': process.platform,
+			'arch': process.arch
+		})
+	};
+}
+function renderPage(page, req, res, repo)
+{
+	var start=process.hrtime();
+	var session=repo['session'];
+	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	blog.getPosts(page, function(err, data)
+	{
+		blog.getPaginationData(page, function(pagination)
+		{
+			var content=getContentObject(start,repo);
+			content['content']=template.get('posts.html').render({
+				'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
+				'posts': template.get('post.html').render(data),
+				'pagination': template.get('pagination.html').render({
+					'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
+					'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
+					'current': 'Page '+pagination['current']+'/'+pagination['all']
+				})
+			});
+			res.end(template.get('layout.html').render(content));
+		});
+	});
+}
