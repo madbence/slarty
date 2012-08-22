@@ -1,6 +1,7 @@
 var mongodb=require('mongodb'),
-	mongoserver=new mongodb.Server('localhost', mongodb.Connection.DEFAULT_PORT),
-	db_connector=new mongodb.Db('fw', mongoserver),
+	config=require('url').parse(process.env.MONGOHQ_URL || 'mongodb://localhost:'+mongodb.Connection.DEFAULT_PORT+'/fw');
+	mongoserver=new mongodb.Server(config.hostname, parseInt(config.port)),
+	db_connector=new mongodb.Db(config.pathname.substr(1), mongoserver),
 	db=null;
 
 var API={
@@ -13,6 +14,18 @@ var API={
 				return console.log(err);
 			}
 			console.log('Connected to db.');
+			if(config.auth)
+			{
+				database.authenticate(config.auth.substr(0,config.auth.indexOf(':')),
+					config.auth.substr(config.auth.indexOf(':')+1), function(err, result)
+					{
+						if(err)
+						{
+							return console.log(err);
+						}
+						console.log('User authenticated!');
+					});
+			}
 			db=database;
 		});
 	},
