@@ -1,6 +1,6 @@
 {
 	"name": "slarty",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"author": "Bence Danyi <madbence@gmail.com>",
 	"description": "Node.js+MongoDB based blog engine.",
 	"main": "./Application.js",
@@ -11,5 +11,10 @@
 	"license": "MIT",
 	"engine":{
 		"node": ">=0.8.7"
+	},
+	"repository":
+	{
+		"type": "git",
+		"url": "https://github.com/madbence/slarty.git"
 	}
 }
