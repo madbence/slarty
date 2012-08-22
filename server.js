@@ -10,11 +10,8 @@ app.useSessions();
 
 app.get('/viewSession', function(req, res, repo)
 {
-	var start=process.hrtime();
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
-	res.end(template.get('layout.html').addVariables(getContentObject(start, repo)).
-		addVariable('content', '<pre>'+JSON.stringify(repo['session'].getAll(), null, 4)+'\r\nLast access: '+repo['session'].getLastAccess()+'</pre>').
-		render());
+	var fn=renderLayout(req, res, repo)
+	fn('<pre>'+JSON.stringify(repo['session'].getAll(), null, 4)+'\r\nLast access: '+repo['session'].getLastAccess()+'</pre>');
 });
 app.get('/listActiveSessions', function(req, res, repo)
 {
@@ -117,13 +114,10 @@ app.get('/addPost', function(req, res, repo)
 	{
 		return res.redirect('/');
 	}
-	var start=process.hrtime();
-	var session=repo['session'];
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	var fn=renderLayout(req, res, repo)
 	blog.getPosts(1, function(err, data)
 	{
-		res.end(template.get('layout.html').addVariables(getContentObject(start,repo)).
-			addVariable('content', template.get('postForm.html').render()).render());
+		fn(template.get('postForm.html'));
 	})
 });
 app.post('/addPost', function(req, res, repo)
@@ -152,42 +146,19 @@ app.get('/page/:page', function(req, res, repo)
 app.get('/post/:id', function(req, res, repo)
 {
 	var id=parseInt(req.getVar('id'));
-	var start=process.hrtime();
-	var session=repo['session'];
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	var fn=renderLayout(req, res, repo);
 	blog.getPost(id, function(err, data)
 	{
-		var content=getContentObject(start,repo);
-		content['content']=template.get('post.html').render(data);
-		res.end(template.get('layout.html').render(content));
+		fn(template.get('post.html').addVariables(data));
 	});
 });
+app.serveFiles('/media', './files/media');
 
 app.listen(8080);
 
-function getContentObject(time,repo)
-{
-	var session=repo['session'];
-	return {
-		'loginForm': template.get('loginForm.html'),
-		'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-		'renderInfo': template.get('renderinfo.html').addVariables({
-			'time': (process.hrtime(time)[1]/1000000).toFixed(3),
-			'uptime': Math.round(process.uptime()),
-			'sysuptime': Math.round(require('os').uptime()),
-			'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
-			'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
-			'version': process.version,
-			'platform': process.platform,
-			'arch': process.arch
-		})
-	};
-}
 function renderPage(page, req, res, repo)
 {
-	var start=process.hrtime();
-	var session=repo['session'];
-	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	var fn=renderLayout(req, res, repo);
 	Jobs.paralell({
 		'posts': function(job)
 		{
@@ -208,9 +179,7 @@ function renderPage(page, req, res, repo)
 	}, function(results)
 	{
 		var pagination=results['pagination'];
-		res.end(template.get('layout.html').addVariables(getContentObject(start,repo)).
-			addVariable('content', template.get('posts.html').addVariables({
-				'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
+		fn(template.get('posts.html').addVariables({
 				'posts': template.get('post.html').setVariableArray(results['posts']['data']),
 				'pagination': template.get('pagination.html').addVariables({
 					'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
@@ -218,6 +187,31 @@ function renderPage(page, req, res, repo)
 					'current': 'Page '+pagination['current']+'/'+pagination['all']
 				})
 			})
-		).render());
+		);
 	})
+}
+
+function renderLayout(req, res, repo)
+{
+	repo['util.start']=process.hrtime();
+	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	return function(content)
+	{
+		res.end(template.get('layout.html').addVariables({
+			'loginForm': template.get('loginForm.html'),
+			'userName': repo['session'].get('user')!==undefined?repo['session'].get('user')['name']:'Anonymous',
+			'isLoggedin': repo['session'].get('isLoggedin'),
+			'isAdmin': repo['session'].get('user')!==undefined?repo['session'].get('user')['admin']:false,
+			'renderInfo': template.get('renderinfo.html').addVariables({
+				'time': (process.hrtime(repo['util.start'])[1]/1000000).toFixed(3),
+				'uptime': Math.round(process.uptime()),
+				'sysuptime': Math.round(require('os').uptime()),
+				'heapUsed': (process.memoryUsage()['heapUsed']/1024/1024).toFixed(2),
+				'heapTotal': (process.memoryUsage()['heapTotal']/1024/1024).toFixed(2),
+				'version': process.version,
+				'platform': process.platform,
+				'arch': process.arch
+			})
+		}).addVariable('content', content).render());
+	}
 }
