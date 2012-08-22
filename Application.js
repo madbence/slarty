@@ -7,23 +7,6 @@ function Application()
 	require('./Db.js').API.init();
 	var router=new Router();
 	var before=[];
-	var handle={
-		'GET': function(req, res, fn)
-		{
-			fn(req, res);
-		},
-		'POST': function(req, res, fn)
-		{
-			req.getRaw().on('data', function(data)
-			{
-				req.updateRawData(data);
-			});
-			req.getRaw().on('end', function()
-			{
-				fn(req, res);
-			});
-		}
-	}
 	var server=require('http').createServer(function(req, res)
 	{
 		req.url+=req.url.charAt(req.url.length-1) !== '/' ? '/' : '';
