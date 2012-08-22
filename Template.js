@@ -24,16 +24,25 @@ function Template(name)
 	var variableArray=null;
 	var renderedContent=null;
 	var template={
-		'addVariable': function(nname, value)
+		'getVariables': function()
 		{
+			return variables;
+		},
+		'addVariable': function(nname, value, replace)
+		{
+			if(!replace && variables[nname] !== undefined)
+			{
+				//console.log(name, nname, 'exists!');
+				return template;
+			}
 			variables[nname]=value;
 			return template;
 		},
-		'addVariables': function(obj)
+		'addVariables': function(obj, replace)
 		{
 			for(var i in obj)
 			{
-				template.addVariable(i, obj[i]);
+				template.addVariable(i, obj[i], replace);
 			}
 			return template;
 		},
@@ -45,13 +54,13 @@ function Template(name)
 		},
 		'render': function()
 		{
-			console.log(name+' has variables: '+JSON.stringify(variables, null, 2));
+			console.log('rendering '+name);
 			if(asArray)
 			{
 				var temp='';
 				for(var i in variableArray)
 				{
-					template.addVariables(variableArray[i])
+					template.addVariables(variableArray[i], true)
 					temp+=doReplace(content, variables);
 				}
 				return temp;
@@ -84,8 +93,9 @@ function doReplace(str, variables)
 			}
 			if(typeof variables[name].render === 'function')
 			{
-				console.log('Adding variables to '+name);
+				//console.log('passing variables to '+name);
 				variables[name].addVariables(variables);
+				//console.log(name+' now has variables ', variables[name].getVariables());
 				return variables[name].render();
 			}
 			return variables[name];
