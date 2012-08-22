@@ -10,7 +10,11 @@ app.useSessions();
 
 app.get('/viewSession', function(req, res, repo)
 {
-	res.end(JSON.stringify(repo['session'].getAll(), null, 4)+'\r\nLast access: '+repo['session'].getLastAccess());
+	var start=process.hrtime();
+	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
+	res.end(template.get('layout.html').addVariables(getContentObject(start, repo)).
+		addVariable('content', '<pre>'+JSON.stringify(repo['session'].getAll(), null, 4)+'\r\nLast access: '+repo['session'].getLastAccess()+'</pre>').
+		render());
 });
 app.get('/listActiveSessions', function(req, res, repo)
 {
@@ -118,9 +122,8 @@ app.get('/addPost', function(req, res, repo)
 	res.writeHead(200, {'Content-Type': 'text/html; charset=utf8'});
 	blog.getPosts(1, function(err, data)
 	{
-		var content=getContentObject(start,repo);
-		content['content']=template.get('postForm.html').render();
-		res.end(template.get('layout.html').render(content));
+		res.end(template.get('layout.html').addVariables(getContentObject(start,repo)).
+			addVariable('content', template.get('postForm.html').render()).render());
 	})
 });
 app.post('/addPost', function(req, res, repo)
@@ -166,16 +169,9 @@ function getContentObject(time,repo)
 {
 	var session=repo['session'];
 	return {
-		'loginForm': function()
-		{
-			if(session.get('isLoggedin'))
-			{
-				return '<div id="loginForm"><a id="loginButton" href="/logout">Logout!</a></div>';
-			}
-			return template.get('loginForm.html').render();
-		}(),
+		'loginForm': template.get('loginForm.html'),
 		'userName': session.get('user')!==undefined?session.get('user')['name']:'Anonymous',
-		'renderInfo': template.get('renderinfo.html').render({
+		'renderInfo': template.get('renderinfo.html').addVariables({
 			'time': (process.hrtime(time)[1]/1000000).toFixed(3),
 			'uptime': Math.round(process.uptime()),
 			'sysuptime': Math.round(require('os').uptime()),
@@ -212,16 +208,16 @@ function renderPage(page, req, res, repo)
 	}, function(results)
 	{
 		var pagination=results['pagination'];
-		var content=getContentObject(start,repo);
-		content['content']=template.get('posts.html').render({
-			'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
-			'posts': template.get('post.html').render(results['posts']['data']),
-			'pagination': template.get('pagination.html').render({
-				'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
-				'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
-				'current': 'Page '+pagination['current']+'/'+pagination['all']
+		res.end(template.get('layout.html').addVariables(getContentObject(start,repo)).
+			addVariable('content', template.get('posts.html').addVariables({
+				'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
+				'posts': template.get('post.html').setVariableArray(results['posts']['data']),
+				'pagination': template.get('pagination.html').addVariables({
+					'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
+					'prev': pagination['hasPrev'] ? '<a href="/page/'+pagination['prev']+'">Prevorious page</a>' : '',
+					'current': 'Page '+pagination['current']+'/'+pagination['all']
+				})
 			})
-		});
-		res.end(template.get('layout.html').render(content));
+		).render());
 	})
 }
