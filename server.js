@@ -9,7 +9,7 @@ app.useSessions();
 
 app.get('/viewSession', function(req, res, repo)
 {
-	res.end(JSON.stringify(repo['session'].getAll(), null, 4));
+	res.end(JSON.stringify(repo['session'].getAll(), null, 4)+'\r\nLast access: '+repo['session'].getLastAccess());
 });
 app.get('/listActiveSessions', function(req, res, repo)
 {
@@ -169,6 +169,7 @@ app.get('/', function(req, res, repo)
 			res.end(template.get('layout.html').render(
 			{
 				'content': template.get('posts.html').render({
+					'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
 					'posts': template.get('post.html').render(data),
 					'pagination': template.get('pagination.html').render({
 						'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
@@ -212,6 +213,7 @@ app.get('/page/:page', function(req, res, repo)
 			res.end(template.get('layout.html').render(
 			{
 				'content': template.get('posts.html').render({
+					'newPost': session.get('isLoggedin') ? '<a href="/addPost">Post something!</a>': '',
 					'posts': template.get('post.html').render(data),
 					'pagination': template.get('pagination.html').render({
 						'next': pagination['hasNext'] ? '<a href="/page/'+pagination['next']+'">Next page</a>' : '',
