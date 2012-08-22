@@ -63,8 +63,7 @@ function Sessions(req, res)
 
 setInterval(function()
 {
-	console.log('Running sessions gc...');
-	console.log(sessionsCount);
+	console.log('Running sessions gc (on '+sessionsCount+' sessions)...');
 	var deleted=0;
 	var now=new Date().getTime();
 	for(var i in sessions)
