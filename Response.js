@@ -13,10 +13,10 @@ function Response(raw)
 	{
 		responseCode=code;
 	}
-	response.setHeader=function(name, value)
+	/*response.setHeader=function(name, value)
 	{
 		headers[name]=value;
-	}
+	}*/
 	response.sendHead=function()
 	{
 		raw.writeHead(responseCode, headers);
